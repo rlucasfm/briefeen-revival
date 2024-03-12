@@ -14,13 +14,37 @@ import {
     Button
 } from "@nextui-org/react";
 import { useState } from "react";
+import { AuthErrors, loginAuthUser } from "@/services/auth";
   
 export default function LoginModal(
-    {isOpen, onOpen, onOpenChange}: 
-    {isOpen: boolean, onOpen: () => any, onOpenChange: () => any}
+    {
+        isOpen, 
+        onOpen, 
+        onOpenChange
+    }: 
+    {
+        isOpen: boolean, 
+        onOpen: () => any, 
+        onOpenChange: () => any
+    }
 ) {
     const [username, setUsername] = useState<string>('');
     const [password, setPassword] = useState<string>('');
+    const [authError, setAuthError] = useState('');
+
+    const onLogin = (email: string, password: string) => {
+        loginAuthUser(email, password)
+          .then((res) => {
+            
+          })
+          .catch((e) => {
+            if(Object.values(AuthErrors).includes(e.code)) {
+                setAuthError('Credenciais inválidas. Verifique seu email/senha');
+            } else {
+                setAuthError('Houve um erro ao autenticar, tente novamente em instantes');
+            }
+          });
+    };
 
     return(
         <>
@@ -68,7 +92,15 @@ export default function LoginModal(
                                     }
                                 />
                                 <p className="ml-auto text-xs mt-1">Esqueceu sua senha? <span className="text-blue-700 cursor-pointer hover:underline">Clique aqui</span></p>
-                                <Button color="success" size="lg" className="text-white mt-4">Entrar</Button>
+                                {authError !== '' && (
+                                    <p className="ml-auto mr-auto text-xs mt-2 text-red-500">{authError}</p>
+                                ) }
+                                <Button 
+                                    color="success" 
+                                    size="lg" 
+                                    className="text-white mt-4"
+                                    onClick={() => onLogin(username, password)}
+                                >Entrar</Button>
                             </div>
                         </div>
                     </ModalBody>
