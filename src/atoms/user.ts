@@ -7,10 +7,16 @@ export const userAtom = atom({
         name: '',
         phone: '',
         email: '',
-        address: '',
-        signature_type: '',
-        due_data: '',
+        // address: '',
+        // signature_type: '',
+        // due_data: '',
         created: '',
-        updated: ''
+        updated: '',
+        roles: {
+            briefing: '',
+            catalogs: '',
+            client: ''
+        },
+        company_id: ''
     }
 })

@@ -11,10 +11,14 @@ import {
     ModalBody, 
     Divider,
     Input,
-    Button
+    Button,
+    CircularProgress
 } from "@nextui-org/react";
 import { useState } from "react";
 import { AuthErrors, loginAuthUser } from "@/services/auth";
+import { useSetRecoilState } from "recoil";
+import { userAtom } from "@/atoms/user";
+import { useRouter } from "next/navigation";
   
 export default function LoginModal(
     {
@@ -28,16 +32,31 @@ export default function LoginModal(
         onOpenChange: () => any
     }
 ) {
+    const [isLoading, setIsLoading] = useState(false);
     const [username, setUsername] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [authError, setAuthError] = useState('');
+    const setUserRecoil = useSetRecoilState(userAtom);
+    const router = useRouter();
 
     const onLogin = (email: string, password: string) => {
+        setIsLoading(true);
         loginAuthUser(email, password)
-          .then((res) => {
-            
+          .then((res: any) => {
+            setUserRecoil({
+                id: res.uuid,
+                email: res.email,
+                name: res.email,
+                phone: res.phone,
+                created: res.created,
+                updated: res.updated,
+                roles: res.roles,
+                company_id: res.company_id.id
+            });
+            router.push('/workspace');
           })
           .catch((e) => {
+            setIsLoading(false);
             if(Object.values(AuthErrors).includes(e.code)) {
                 setAuthError('Credenciais inválidas. Verifique seu email/senha');
             } else {
@@ -100,7 +119,8 @@ export default function LoginModal(
                                     size="lg" 
                                     className="text-white mt-4"
                                     onClick={() => onLogin(username, password)}
-                                >Entrar</Button>
+                                    disabled={isLoading}
+                                >{isLoading ? <CircularProgress aria-label="Loading..." /> : 'Entrar'}</Button>
                             </div>
                         </div>
                     </ModalBody>
