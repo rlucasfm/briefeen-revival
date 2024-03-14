@@ -1,7 +1,10 @@
 import { atom } from "recoil";
+import { localStorageEffect } from "./helper";
+
+const key = 'user';
 
 export const userAtom = atom({
-    key: 'user',
+    key: key,
     default: {
         id: '',
         name: '',
@@ -17,6 +20,7 @@ export const userAtom = atom({
             catalogs: '',
             client: ''
         },
-        company_id: ''
-    }
+        company: ''
+    },
+    effects: [localStorageEffect(key)]
 })

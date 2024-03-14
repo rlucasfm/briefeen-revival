@@ -51,7 +51,7 @@ export default function LoginModal(
                 created: res.created,
                 updated: res.updated,
                 roles: res.roles,
-                company_id: res.company_id.id
+                company: res.company.id
             });
             router.push('/workspace');
           })

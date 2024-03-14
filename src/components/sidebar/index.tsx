@@ -1,38 +1,27 @@
-import { IoCopyOutline } from "react-icons/io5";
-import { IoPeople } from "react-icons/io5";
-import { CiStar } from "react-icons/ci";
-import { FaBook } from "react-icons/fa";
+"use client";
+
 import { Avatar, Divider } from "@nextui-org/react";
+import { useRouter, usePathname } from "next/navigation";
+import { Routes } from "./routes";
 
 // Componente SidebarItem
-const SidebarItem = ({ label, Icon }) => {
+const SidebarItem = ({ label, Icon, link }: { label:string, Icon: any, link: string }) => {
+    const router = useRouter();
+    const pathname = usePathname();
+
+    const isActive = pathname === link;
+
     return (
-        <div className="flex items-center justify-around cursor-pointer p-2 py-3 hover:bg-green-200 hover:text-green-600">
+        <div 
+            className={`flex items-center justify-around cursor-pointer p-2 py-3 ${isActive ? 'bg-green-100 text-green-600 hover:bg-green-200 hover:text-green-600' : 'hover:bg-green-200 hover:text-green-600'}`}
+            onClick={() => router.push(link)}
+        >
             <Icon className="ml-4" size={20} />
             <p className="mr-auto ml-4 text-sm">{label}</p>
         </div>
     );
 };
 
-// Array de itens para a barra lateral
-const Items = [
-    {
-        label: 'Workspace',
-        icon: IoCopyOutline
-    },
-    {
-        label: 'Clientes',
-        icon: IoPeople
-    },
-    {
-        label: 'Catálogos',
-        icon: CiStar
-    },
-    {
-        label: 'Portfólios',
-        icon: FaBook
-    },
-]
 
 // Componente Sidebar
 export default function Sidebar() {
@@ -46,9 +35,9 @@ export default function Sidebar() {
             </div>
             <Divider className="mt-10 mb-4" />
             <div className="flex flex-col">
-                {Items.map((item, index) => (
+                {Routes.map((item, index) => (
                     <div key={index}>
-                        <SidebarItem label={item.label} Icon={item.icon} />
+                        <SidebarItem label={item.label} Icon={item.icon} link={item.link} />
                     </div>
                 ))}
             </div>
