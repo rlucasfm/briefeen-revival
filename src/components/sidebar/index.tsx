@@ -26,7 +26,7 @@ const SidebarItem = ({ label, Icon, link }: { label:string, Icon: any, link: str
 // Componente Sidebar
 export default function Sidebar() {
     return (
-        <div className="flex flex-col w-[15rem] h-screen shadow-[1px_0_10px_rgba(0,0,0,0.5)] mr-4">
+        <div className="flex flex-col min-w-[250px] w-[250px] h-screen shadow-[1px_0_10px_rgba(0,0,0,0.5)] mr-4">
             <div className="mt-10 flex flex-col items-center">
                 <h1 className="text-lg mb-2 font-medium">Bem-vindo</h1>
                 <Avatar src="https://i.pravatar.cc/150?u=a04258114e29026708c" className="w-20 h-20 text-large" />

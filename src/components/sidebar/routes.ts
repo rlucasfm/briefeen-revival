@@ -11,9 +11,9 @@ export const Routes = [
         link: '/workspace'
     },
     {
-        label: 'Clientes',
+        label: 'Projetos',
         icon: IoPeople,
-        link: '/workspace/clients'
+        link: '/workspace/projects'
     },
     {
         label: 'Catálogos',
