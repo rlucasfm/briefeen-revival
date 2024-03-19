@@ -1,5 +1,6 @@
 import { firebase_db } from "@/lib/firebase";
-import { collection, doc, query, where, getDocs, getDoc } from "firebase/firestore";
+import { collection, doc, query, where, getDocs, getDoc, addDoc } from "firebase/firestore";
+import { IClient } from "./interfaces";
 
 export const getClientsByCompany = (company: string) => {
     const companyRef = doc(firebase_db, 'Company', company);
@@ -12,5 +13,17 @@ export const getClientsByCompany = (company: string) => {
             response.push({id: doc.id, ...doc.data()});
         });
         resolve(response);
+    })
+}
+
+export const createClient = (client_data: IClient) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const companyRef = doc(firebase_db, 'Company', client_data.company);
+            const created_client = await addDoc(collection(firebase_db, 'Client'), {...client_data, company: companyRef});
+            resolve(created_client);    
+        } catch (error) {
+            reject(error);
+        }
     })
 }

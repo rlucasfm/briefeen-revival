@@ -2,7 +2,7 @@
 
 import { CiCirclePlus } from "react-icons/ci";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, Card, CardBody, Divider, useDisclosure } from "@nextui-org/react";
+import { Avatar, Card, CardBody, CircularProgress, Divider, useDisclosure } from "@nextui-org/react";
 import { userAtom } from "@/atoms/user";
 import { useRecoilState } from "recoil";
 import { useEffect, useState } from "react";
@@ -27,14 +27,25 @@ const ProjectItem = ({name, stage}: {name: string, stage: string}) => {
 }
 
 export default function Page() {
+    const [ isLoading, setIsLoading ] = useState(true);
     const [userRecoil, setUserRecoil] = useRecoilState(userAtom);
     const [loadedProjects, setLoadedProjects] = useState<any[]>([]);
-    const {isOpen, onOpen, onOpenChange} = useDisclosure();
+    const {isOpen, onOpen, onOpenChange, onClose} = useDisclosure();
 
-    useEffect(() => {
+    const loadProjects = () => {
         getProjectsByCompany(userRecoil.company).then((res: any) =>{
             setLoadedProjects(res);
+            setIsLoading(false);
         })
+    }
+
+    const handleOnCreate = () => {
+        loadProjects();
+        onClose();
+    }
+
+    useEffect(() => {
+        loadProjects();
     }, [])
 
     return(
@@ -44,13 +55,14 @@ export default function Page() {
                     <CardBody style={{ height: '80vh' }}>
                         <div className="flex justify-between items-center">
                             <h1 className="font-medium">Projetos</h1>
-                            <CiCirclePlus size={25} className="cursor-pointer" onClick={onOpen} />
+                            {!isLoading && <CiCirclePlus size={25} className="cursor-pointer" onClick={onOpen} />}
                         </div>
                         <Divider className="my-3" />
                         <ScrollArea className="h-full">
                             <div className="flex flex-col gap-4">
+                                {isLoading ? <CircularProgress size="lg" aria-label="Loading..."/> : null}
                                 {loadedProjects.map((project, index) => 
-                                    <ProjectItem name={project.name} stage={(project.stage)} key={index} />
+                                    <ProjectItem name={project.name} stage={(project.stage.name)} key={index} />
                                 )}
                             </div>
                         </ScrollArea>
@@ -60,7 +72,8 @@ export default function Page() {
             <CreateProjectModal         
                 isOpen={isOpen} 
                 onOpen={onOpen} 
-                onOpenChange={onOpenChange} 
+                onOpenChange={onOpenChange}
+                onCreate={handleOnCreate}
             />
         </>
     )
