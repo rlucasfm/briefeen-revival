@@ -1,6 +1,10 @@
 import { firebase_app, firebase_db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useRecoilValue } from "recoil";
+import { userAtom } from "@/atoms/user";
 
 firebase_app;
 // Defining utility functions for authentication
@@ -27,6 +31,37 @@ export const loginAuthUser = (email: string, password: string) => {
                 reject(e);
             });
     })
+}
+
+export const logoutAuthUser = () => {
+    const auth = getAuth();
+    
+    return new Promise((resolve, reject) => {
+        signOut(auth).then(() => {
+            resolve('logged out');
+        }).catch((err) => {
+            reject(err);
+        })
+    })
+}
+
+export const useAuth = () => {
+    const router = useRouter();
+    const userRecoil = useRecoilValue(userAtom);
+    const auth = getAuth();
+
+    if(userRecoil.id === '')
+        router.push('/');
+
+    useEffect(() => {
+        auth.authStateReady().then(() => {
+            const currentUser = auth.currentUser;
+            if (!currentUser)
+                router.push('/');
+        })
+    }, [])
+
+    return auth;
 }
 
 export enum AuthErrors {

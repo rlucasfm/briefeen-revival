@@ -8,6 +8,7 @@ import { useRecoilState } from "recoil";
 import { useEffect, useState } from "react";
 import { getProjectsByCompany } from "@/services/projects";
 import CreateProjectModal from "@/components/modal/createProject";
+import { useAuth } from "@/services/auth";
 
 const ProjectItem = ({name, stage}: {name: string, stage: string}) => {
     return(
@@ -27,6 +28,7 @@ const ProjectItem = ({name, stage}: {name: string, stage: string}) => {
 }
 
 export default function Page() {
+    const auth = useAuth();
     const [ isLoading, setIsLoading ] = useState(true);
     const [userRecoil, setUserRecoil] = useRecoilState(userAtom);
     const [loadedProjects, setLoadedProjects] = useState<any[]>([]);
