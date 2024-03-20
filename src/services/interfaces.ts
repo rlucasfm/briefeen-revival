@@ -1,3 +1,5 @@
+import { Timestamp } from "firebase/firestore";
+
 export interface IClient {
     id?: string;
     name: string;
@@ -10,10 +12,30 @@ export interface IClient {
 
 export interface IProject {
     id?: string;
+    name?: string;
+    stage?: string | IStage;
+    situation?: string;
+    delivery_date?: string;
+    client?: string | IClient;
+    company?: string | ICompany;
+}
+
+export interface ICompany {
+    id?: string;
+    address: string;
+    phone: string;
+    created: Timestamp;
     name: string;
-    stage: string;
-    situation: string;
-    delivery_date: string;
-    client: string;
+    updated: Timestamp;
+    signature_type: string;
+    email: string;
+    due_date: Timestamp;
+}
+
+export interface IStage {
+    id?: string;
+    updated: Timestamp;
+    created: Timestamp;
+    name: string;
     company: string;
 }
