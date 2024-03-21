@@ -1,3 +1,4 @@
+"use client";
 import Sidebar from "@/components/sidebar";
 import { useAuth } from "@/services/auth";
 

@@ -2,7 +2,7 @@ import { firebase_app, firebase_db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRecoilValue } from "recoil";
 import { userAtom } from "@/atoms/user";
 
@@ -62,6 +62,21 @@ export const useAuth = () => {
     }, [])
 
     return auth;
+}
+
+export const useAuthUser = () => {
+    const [currentUser, setCurrentUser] = useState<any>(undefined);
+    const userRecoil = useRecoilValue(userAtom);
+    const auth = getAuth();
+
+    useEffect(() => {
+        auth.authStateReady().then(() => {
+            if(userRecoil.id !== '')
+                setCurrentUser(userRecoil);
+        })
+    }, []);
+
+    return currentUser;
 }
 
 export enum AuthErrors {

@@ -14,6 +14,8 @@ import {
 } from "@nextui-org/react";
 import Image from 'next/image'
 import { useState } from "react";
+import { useAuthUser } from "@/services/auth";
+import { useRouter } from "next/navigation";
 
 const BriefeenLogo = () => (
   <Image src={BriefeenImage} alt="Briefeen" />
@@ -21,6 +23,8 @@ const BriefeenLogo = () => (
 
 export default function Nav({ onLoginClick }: { onLoginClick: () => any }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const router = useRouter();
+  const currentUser = useAuthUser();
 
   const menuItems = [
     {
@@ -64,7 +68,10 @@ export default function Nav({ onLoginClick }: { onLoginClick: () => any }) {
       <NavbarContent justify="end">
         <NavbarItem className="flex flex-row gap-1 items-center hover:bg-green-100 p-2 rounded-lg">
           <IoIosLogIn />
-          <Link onClick={onLoginClick} className="cursor-pointer">Login</Link>
+          {currentUser ? 
+          <Link onClick={() => router.push('/workspace')} className="cursor-pointer">Acessar Workspace</Link>
+          : <Link onClick={onLoginClick} className="cursor-pointer">Login</Link>
+          }
         </NavbarItem>
       </NavbarContent>
       <NavbarMenu>
