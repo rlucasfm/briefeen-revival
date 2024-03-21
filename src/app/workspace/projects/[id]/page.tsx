@@ -12,7 +12,6 @@ import { getHydratedProject, updateProject } from "@/services/projects";
 import { IProject } from "@/services/interfaces";
 
 export default function Page({ params }: { params: { id: string }}) {
-    const auth = useAuth();
     const router = useRouter();
     const userRecoil = useRecoilValue(userAtom);
     const [isLoading, setIsLoading] = useState(true);

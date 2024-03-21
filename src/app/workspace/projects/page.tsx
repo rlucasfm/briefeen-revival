@@ -33,8 +33,7 @@ const ProjectItem = ({name, stage, id}: {name: string, stage: string, id: string
     )
 }
 
-export default function Page() {
-    const auth = useAuth();
+export default function Page() {    
     const [ isLoading, setIsLoading ] = useState(true);
     const [userRecoil, setUserRecoil] = useRecoilState(userAtom);
     const [loadedProjects, setLoadedProjects] = useState<any[]>([]);
