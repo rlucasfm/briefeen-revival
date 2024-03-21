@@ -1,5 +1,5 @@
 import { firebase_db } from "@/lib/firebase";
-import { collection, doc, query, where, getDocs, getDoc, addDoc, updateDoc } from "firebase/firestore";
+import { collection, doc, query, where, getDocs, getDoc, addDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { IProject } from "./interfaces";
 
 export const getProjectsByCompany = async (company: string) => {
@@ -100,6 +100,19 @@ export const updateProject = (project_data: IProject) => {
             })
 
             resolve(updated_project);
+        } catch (error) {
+            reject(error);
+        }
+    })
+}
+
+export const deleteProject = (project_id: string) => {
+    const projectRef = doc(firebase_db, 'Project', project_id);
+
+    return new Promise(async (resolve, reject) => {
+        try {
+            await deleteDoc(projectRef);
+            resolve(true);   
         } catch (error) {
             reject(error);
         }

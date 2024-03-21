@@ -10,26 +10,12 @@ import * as yup from "yup"
 import { IClient } from "@/services/interfaces";
 import { getStagesByCompany } from "@/services/stages";
 import { createProject } from "@/services/projects";
-
-interface IClientForm {
-    nome: string;
-    email: string;
-    fone: string;
-    cpf: string;
-    endereco: string;
-}
-
-interface IProjectForm {
-    nome: string;
-    fase: string;
-    situacao: string;
-    data_entrega: string;
-}
+import { IClientForm, IProjectForm } from "@/lib/common_interfaces";
+import { ContractSituations } from "@/services/constants";
 
 const selectClient = yup.object({
     client: yup.string().required('Escolha um cliente')
 })
-
 
 const validationSchema = yup.object({
     nome: yup.string().required('Preencha o campo acima'),
@@ -43,6 +29,7 @@ const projectSchema = yup.object({
     nome: yup.string().required('Preencha o campo acima'),
     fase: yup.string().required('Preencha o campo acima'),
     situacao: yup.string().required('Preencha o campo acima'),
+    descricao: yup.string().required('Preencha o campo acima'),
     data_entrega: yup.string().required('Preencha o campo acima'),
 })
 
@@ -127,10 +114,15 @@ export default function CreateProjectModal(
             stage: data.fase,
             situation: data.situacao,
             delivery_date: data.data_entrega,
+            description: data.descricao,
             client: clientToProject?.id!,
             company: userRecoil.company
         }).then((res: any) => {
             setIsLoading(false);
+            reset();
+            resetSelect();
+            resetProject();
+            setStep(0);
             onCreate();
         })
     }
@@ -212,8 +204,8 @@ export default function CreateProjectModal(
                                         placeholder="Coloque o CPF do cliente"
                                         onInput={formatCpfInput} 
                                         {...register('cpf')}
-                                        isInvalid={!!errors.fone}
-                                        errorMessage={errors.fone && errors.fone.message}
+                                        isInvalid={!!errors.cpf}
+                                        errorMessage={errors.cpf && errors.cpf.message}
                                     />
                                     <Input 
                                         type="text" 
@@ -256,13 +248,25 @@ export default function CreateProjectModal(
                                     isInvalid={!!errorsProject.nome}
                                     errorMessage={errorsProject.nome && errorsProject.nome.message}
                                 />
-                                <Input 
-                                    type="text" 
-                                    label="Situação" 
-                                    placeholder="Descreva brevemente a situação do projeto" 
+                                <Select
+                                    label="Situação"
+                                    placeholder="Selecione a situação contratual do projeto"
+                                    className="w-full"
                                     {...registerProject('situacao')}
                                     isInvalid={!!errorsProject.situacao}
                                     errorMessage={errorsProject.situacao && errorsProject.situacao.message}
+                                >
+                                    {ContractSituations.map((situation, index) => (
+                                        <SelectItem key={index}>{situation}</SelectItem>
+                                    ))}
+                                </Select>
+                                <Input 
+                                    type="text" 
+                                    label="Descrição" 
+                                    placeholder="Descreva em poucas palavras o projeto" 
+                                    {...registerProject('descricao')}
+                                    isInvalid={!!errorsProject.descricao}
+                                    errorMessage={errorsProject.descricao && errorsProject.descricao.message}
                                 />
                                 <Select
                                     items={loadedStages}
@@ -275,7 +279,6 @@ export default function CreateProjectModal(
                                 >
                                     {(loadedStages: any) => <SelectItem key={loadedStages.id}>{loadedStages.name}</SelectItem>}
                                 </Select>
-                                {/* <input type="date" {...registerProject('data_entrega')} /> */}
                                 <Input 
                                     type="date" 
                                     label="Data de Entrega" 

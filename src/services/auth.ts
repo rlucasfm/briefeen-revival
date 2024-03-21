@@ -67,7 +67,8 @@ export const useAuthUser = () => {
 
     useEffect(() => {
         auth.authStateReady().then(() => {
-            if(userRecoil.id !== '')
+            const currentUser = auth.currentUser;
+            if(currentUser)
                 setCurrentUser(userRecoil);
         })
     }, []);

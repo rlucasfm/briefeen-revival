@@ -15,6 +15,7 @@ export interface IProject {
     name?: string;
     stage?: string | IStage;
     situation?: string;
+    description?: string;
     delivery_date?: string;
     client?: string | IClient;
     company?: string | ICompany;

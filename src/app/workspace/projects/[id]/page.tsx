@@ -1,15 +1,18 @@
 "use client";
 import { IoArrowBackOutline } from "react-icons/io5";
-import { Button, Card, CardBody, Divider, Input, Select, SelectItem, Skeleton } from "@nextui-org/react";
-import { useAuth } from "@/services/auth";
+import { FaRegTrashCan } from "react-icons/fa6";
+import { Button, Card, CardBody, Divider, Input, Select, SelectItem, Skeleton, useDisclosure } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useEffect, useState } from "react";
 import { useRecoilValue } from "recoil";
 import { userAtom } from "@/atoms/user";
 import { getStagesByCompany } from "@/services/stages";
-import { getHydratedProject, updateProject } from "@/services/projects";
+import { deleteProject, getHydratedProject, updateProject } from "@/services/projects";
 import { IProject } from "@/services/interfaces";
+import CardClient from "./components/CardClient";
+import { ContractSituations } from "@/services/constants";
+import ModalDeleteProject from "@/components/modal/deleteProject";
 
 export default function Page({ params }: { params: { id: string }}) {
     const router = useRouter();
@@ -17,18 +20,36 @@ export default function Page({ params }: { params: { id: string }}) {
     const [isLoading, setIsLoading] = useState(true);
     const [stages, setStages] = useState([]);
     const [project, setProject] = useState<IProject>();
+    const [projectStage, setProjectStage] = useState();
     const [projectSituation, setProjectSituation] = useState();
     const [deliveryDate, setDeliveryDate] = useState();
+    const {isOpen, onOpen, onOpenChange, onClose} = useDisclosure();
 
     const handleUpdateProjectData = () => {
         setIsLoading(true);
         updateProject({
             id: project?.id,
             delivery_date: deliveryDate,
-            stage: projectSituation
+            stage: projectStage,
+            situation: projectSituation
         }).then(async () => {
             await loadProjectData();
             setIsLoading(false);
+        })
+    }
+
+    const handleOnUpdateClient = () => {
+        setIsLoading(true);
+        loadProjectData().then(() => setIsLoading(false))
+    }
+
+    const handleDeleteProject = () => {
+        setIsLoading(true);
+        onClose();
+        
+        deleteProject(project!.id as any).then(() => {
+            router.push('/workspace/projects');
+
         })
     }
 
@@ -36,7 +57,8 @@ export default function Page({ params }: { params: { id: string }}) {
         return new Promise((resolve, reject) => {
             getHydratedProject(params.id).then((res: any) => {
                 setProject(res as IProject);
-                setProjectSituation(res.stage.id);
+                setProjectStage(res.stage.id);
+                setProjectSituation(res.situation)
                 setDeliveryDate(res.delivery_date);
                 resolve(res);
             }).catch(err => reject(err))
@@ -97,19 +119,37 @@ export default function Page({ params }: { params: { id: string }}) {
                                     <Divider />
                                     <div className="flex py-4 px-3 mb-3 items-center">
                                         <div className="flex gap-4 items-center">
-                                            <p className="text-base font-light">Situação do cliente</p>
+                                            <p className="text-base font-light">Estágio do Projeto</p>
                                         </div>
                                         <Divider orientation="vertical" className="mx-6 h-10" />
-                                            <Select
-                                                aria-label="stage"
-                                                items={stages}
-                                                className="w-1/3 ml-auto"
-                                                value={projectSituation}
-                                                onChange={(ev: any) => setProjectSituation(ev.target.value)}
-                                                selectedKeys={[projectSituation] as any}
-                                            >
-                                                {(loadedStages: any) => <SelectItem key={loadedStages.id}>{loadedStages.name}</SelectItem>}
-                                            </Select>
+                                        <Select
+                                            aria-label="stage"
+                                            items={stages}
+                                            className="w-1/3 ml-auto"
+                                            value={projectStage}
+                                            onChange={(ev: any) => setProjectStage(ev.target.value)}
+                                            selectedKeys={[projectStage] as any}
+                                        >
+                                            {(loadedStages: any) => <SelectItem key={loadedStages.id}>{loadedStages.name}</SelectItem>}
+                                        </Select>
+                                    </div>
+                                    <Divider />
+                                    <div className="flex py-4 px-3 mb-3 items-center">
+                                        <div className="flex gap-4 items-center">
+                                            <p className="text-base font-light">Situação contratual</p>
+                                        </div>
+                                        <Divider orientation="vertical" className="mx-6 h-10" />
+                                        <Select
+                                            aria-label="situation"
+                                            className="w-1/3 ml-auto"
+                                            value={projectSituation}
+                                            onChange={(ev: any) => setProjectSituation(ev.target.value)}
+                                            selectedKeys={[projectSituation] as any}
+                                        >
+                                            {ContractSituations.map((situation, index) => (
+                                                <SelectItem key={index}>{situation}</SelectItem>
+                                            ))}
+                                        </Select>
                                     </div>
                                     <Divider />
                                     <div className="flex py-4 px-3 mb-3 items-center">
@@ -143,57 +183,42 @@ export default function Page({ params }: { params: { id: string }}) {
                                 </ScrollArea>
                             </CardBody>
                         </Card>
+                        {project && 
+                            <CardClient 
+                                clientData={project!.client as any} 
+                                onUpdate={handleOnUpdateClient} 
+                                isLoading={isLoading} 
+                            />
+                        }
                         <Card className="mt-10">
                             <CardBody>
-                                <div className="flex justify-between items-center">
-                                    <h1 className="font-medium text-xl mb-3">Cliente</h1>
-                                </div>
-                                <Divider />
-                                <div className="flex py-4 px-3 mb-3 items-center">
-                                    <div className="flex gap-4 items-center">
-                                        <p className="text-base font-medium">Nome</p>
+                                <h1 className="text-red-600 font-medium text-xl">Zona de Risco</h1>
+                                <Divider className="mt-5 mb-5" />
+                                <div className="flex">
+                                    <div className="flex py-4 px-3 mb-3 items-center w-full">
+                                        <div className="flex gap-4 items-center">
+                                            <p className="text-xl font-base">Excluir projeto definitivamente</p>
+                                        </div>
+                                        <Divider orientation="vertical" className="mx-6 h-10" />
+                                        <FaRegTrashCan 
+                                            size={30} 
+                                            className="ml-auto mr-auto text-red-500 cursor-pointer" 
+                                            onClick={onOpen}
+                                        />
                                     </div>
-                                    <Divider orientation="vertical" className="mx-6 h-10" />
-                                    <p className="font-light ml-auto hover:underline">Cliente Teste</p>
                                 </div>
-                                <Divider />
-                                <div className="flex py-4 px-3 mb-3 items-center">
-                                    <div className="flex gap-4 items-center">
-                                        <p className="text-base font-medium">Email</p>
-                                    </div>
-                                    <Divider orientation="vertical" className="mx-6 h-10" />
-                                    <p className="font-light ml-auto hover:underline">cliente@teste.com</p>
-                                </div>
-                                <Divider />
-                                <div className="flex py-4 px-3 mb-3 items-center">
-                                    <div className="flex gap-4 items-center">
-                                        <p className="text-base font-medium">Telefone</p>
-                                    </div>
-                                    <Divider orientation="vertical" className="mx-6 h-10" />
-                                    <p className="font-light ml-auto hover:underline">(99) 99199-7205</p>
-                                </div>
-                                <Divider />
-                                <div className="flex py-4 px-3 mb-3 items-center">
-                                    <div className="flex gap-4 items-center">
-                                        <p className="text-base font-medium">Documento</p>
-                                    </div>
-                                    <Divider orientation="vertical" className="mx-6 h-10" />
-                                    <p className="font-light ml-auto hover:underline">999.999.999-99</p>
-                                </div>
-                                <Divider />
-                                <div className="flex py-4 px-3 mb-3 items-center">
-                                    <div className="flex gap-4 items-center">
-                                        <p className="text-base font-medium">Endereço</p>
-                                    </div>
-                                    <Divider orientation="vertical" className="mx-6 h-10" />
-                                    <p className="font-light ml-auto hover:underline cursor-pointer">Endereço do Cliente, rua Tal. Numero tal.</p>
-                                </div>
-                                <Divider />
                             </CardBody>
                         </Card>
                     </Skeleton>
                 </div>
             </ScrollArea>
+            <ModalDeleteProject
+                isOpen={isOpen}
+                onOpenChange={onOpenChange}
+                onOpen={onOpen}
+                onDelete={handleDeleteProject}
+                project={project!}
+            />
         </>
     )
 }

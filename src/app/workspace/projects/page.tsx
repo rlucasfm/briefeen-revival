@@ -11,7 +11,7 @@ import CreateProjectModal from "@/components/modal/createProject";
 import { useAuth } from "@/services/auth";
 import { useRouter } from "next/navigation";
 
-const ProjectItem = ({name, stage, id}: {name: string, stage: string, id: string}) => {
+const ProjectItem = ({name, stage, description, id}: {name: string, stage: string, description: string, id: string}) => {
     const router = useRouter();
     
     return(
@@ -21,7 +21,8 @@ const ProjectItem = ({name, stage, id}: {name: string, stage: string, id: string
                     <Avatar name={name} size="md" />
                     <p className="text-base font-light">{name}</p>
                 </div>
-                <Divider orientation="vertical" className="mx-6 h-10" />
+                <Divider orientation="vertical" className="mx-6 h-10 xl:block hidden" />
+                <p className="text-base font-light">{description}</p>
                 <div className="flex ml-auto gap-5 items-center">
                     <p className="font-light text-lg">{stage}</p>
                     <Button color="primary" variant="flat" onClick={() => router.push(`/workspace/projects/${id}`)}>Ver mais</Button>
@@ -73,6 +74,7 @@ export default function Page() {
                                         <ProjectItem 
                                             name={project.name} 
                                             stage={(project.stage.name)}
+                                            description={project.description}
                                             id={project.id}
                                             key={index} 
                                         />
