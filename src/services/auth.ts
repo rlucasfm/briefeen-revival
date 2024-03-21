@@ -47,11 +47,7 @@ export const logoutAuthUser = () => {
 
 export const useAuth = () => {
     const router = useRouter();
-    const userRecoil = useRecoilValue(userAtom);
     const auth = getAuth();
-
-    if(userRecoil.id === '')
-        router.push('/');
 
     useEffect(() => {
         auth.authStateReady().then(() => {
